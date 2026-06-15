@@ -1,0 +1,143 @@
+{% extends 'items/base.html' %}
+
+{% block title %}Claim Item - FindIt{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Claim This Item</h3>
+                    <p class="text-muted mb-0">Upload verification photos to prove ownership</p>
+                </div>
+                <div class="card-body">
+                    <!-- Item Details -->
+                    <div class="mb-4">
+                        <h5>{{ item.title }}</h5>
+                        <p class="text-muted">{{ item.description }}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Category:</strong> {{ item.category }}<br>
+                                <strong>Location:</strong> {{ item.location }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date:</strong> {{ item.date_lost_found }}<br>
+                                <strong>Type:</strong> {{ item.item_type }}
+                            </div>
+                        </div>
+                        {% if item.image %}
+                        <div class="mt-3">
+                            <img src="{{ item.image }}" alt="{{ item.title }}" class="img-fluid rounded" style="max-height: 200px;">
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+
+                    <!-- Claim Form -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="claimant_name" class="form-label">Your Name *</label>
+                                    <input type="text" class="form-control" id="claimant_name" name="claimant_name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="claimant_email" class="form-label">Your Email *</label>
+                                    <input type="email" class="form-control" id="claimant_email" name="claimant_email" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="claimant_phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="claimant_phone" name="claimant_phone">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="additional_details" class="form-label">Additional Details</label>
+                            <textarea class="form-control" id="additional_details" name="additional_details" rows="3" placeholder="Any additional information that might help verify your ownership..."></textarea>
+                        </div>
+
+                        <!-- Photo Upload Section -->
+                        <div class="mb-4">
+                            <label class="form-label">Verification Photos *</label>
+                            <p class="text-muted small">Upload photos of the item from different angles to help the finder verify your ownership.</p>
+                            
+                            <div class="row" id="photo-container">
+                                <div class="col-md-4 mb-3">
+                                    <div class="photo-upload-box">
+                                        <input type="file" class="form-control photo-input" name="photo_1" accept="image/*" onchange="previewImage(this, 'preview_1')" required>
+                                        <div class="photo-preview mt-2" id="preview_1"></div>
+                                        <small class="text-muted">Photo 1</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="photo-upload-box">
+                                        <input type="file" class="form-control photo-input" name="photo_2" accept="image/*" onchange="previewImage(this, 'preview_2')">
+                                        <div class="photo-preview mt-2" id="preview_2"></div>
+                                        <small class="text-muted">Photo 2 (Optional)</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="photo-upload-box">
+                                        <input type="file" class="form-control photo-input" name="photo_3" accept="image/*" onchange="previewImage(this, 'preview_3')">
+                                        <div class="photo-preview mt-2" id="preview_3"></div>
+                                        <small class="text-muted">Photo 3 (Optional)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'items:detail' item.id %}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Submit Claim Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.photo-upload-box {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.photo-upload-box:hover {
+    border-color: #007bff;
+}
+
+.photo-preview img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 4px;
+}
+</style>
+
+<script>
+function previewImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.innerHTML = '';
+    }
+}
+</script>
+{% endblock %}

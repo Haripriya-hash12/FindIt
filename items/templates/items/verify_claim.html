@@ -1,0 +1,145 @@
+{% extends 'items/base.html' %}
+
+{% block title %}Verify Claim - FindIt{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-3 small text-muted">
+        <a href="{% url 'items:dashboard' %}" class="text-decoration-none">Home</a>
+        <span class="mx-1">/</span>
+        <a href="{% url 'items:detail' claim.item.id %}" class="text-decoration-none">{{ claim.item.title|truncatechars:40 }}</a>
+        <span class="mx-1">/</span>
+        <span>Verify Claim</span>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Verify Claim Request</h3>
+                    <p class="text-muted mb-0">Review the claimant's photos to verify ownership</p>
+                </div>
+                <div class="card-body">
+                    <!-- Item Details -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Item Details</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6>{{ claim.item.title }}</h6>
+                                    <p class="text-muted">{{ claim.item.description }}</p>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Category:</strong> {{ claim.item.category }}<br>
+                                            <strong>Location:</strong> {{ claim.item.location }}
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Date:</strong> {{ claim.item.date_lost_found }}<br>
+                                            <strong>Type:</strong> {{ claim.item.item_type }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if claim.item.image %}
+                            <div class="mt-3">
+                                <h6>Original Item Photo</h6>
+                                <img src="{{ claim.item.image }}" alt="{{ claim.item.title }}" class="img-fluid rounded">
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5>Claimant Information</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p><strong>Name:</strong> {{ claim.claimant_name }}</p>
+                                    <p><strong>Email:</strong> {{ claim.claimant_email }}</p>
+                                    {% if claim.claimant_phone %}
+                                    <p><strong>Phone:</strong> {{ claim.claimant_phone }}</p>
+                                    {% endif %}
+                                    {% if claim.additional_details %}
+                                    <p><strong>Additional Details:</strong><br>
+                                    <em>{{ claim.additional_details }}</em></p>
+                                    {% endif %}
+                                    <p class="text-muted"><strong>Submitted:</strong> {{ claim.created_at|date:"M d, Y H:i" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Verification Photos -->
+                    <div class="mb-4">
+                        <h5>Verification Photos from Claimant</h5>
+                        <p class="text-muted">Compare these photos with the item you found to verify ownership.</p>
+                        
+                        <div class="row">
+                            {% for photo_url in claim.verification_photos %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <img src="{{ photo_url }}" alt="Verification Photo" class="img-fluid rounded mb-2" style="max-height: 200px;">
+                                        <small class="text-muted">Photo {{ forloop.counter }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Verification Actions -->
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Verify only if you are confident the claimant is the rightful owner.
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-3">
+                        {% if claim_chat_url %}
+                        <a href="{{ claim_chat_url }}" class="btn btn-outline-primary">
+                            <i class="fas fa-comments"></i> Open Chat with Claimant
+                        </a>
+                        {% else %}
+                        <a href="{% url 'items:start_claim_chat' claim.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-comments"></i> Start Chat with Claimant
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        {% csrf_token %}
+                        
+                        <div class="btn-group" role="group">
+                            <button type="submit" name="action" value="verify" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Verify Claim
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-lg">
+                                <i class="fas fa-times"></i> Reject Claim
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-4 text-center">
+                        <small class="text-muted">
+                            You can coordinate handover details via the chat above.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-group .btn {
+    min-width: 200px;
+}
+
+.alert {
+    border-left: 4px solid #ffc107;
+}
+</style>
+{% endblock %}

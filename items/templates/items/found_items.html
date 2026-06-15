@@ -1,0 +1,54 @@
+{% extends "items/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2><i class="fas fa-check-circle text-success"></i> Found Items</h2>
+  <a href="{% url 'items:post' %}" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Report Found Item
+  </a>
+</div>
+
+<div class="row">
+  {% for item in items %}
+  <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100 border-success card-hover">
+      <div class="ratio ratio-16x9 overflow-hidden">
+        <img src="{{ item.image|default:'/static/items/placeholder.png' }}" class="object-fit-cover" alt="{{ item.title }}">
+      </div>
+      <div class="card-header bg-success text-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="badge bg-light text-dark">{{ item.category }}</span>
+          <small>{{ item.date_lost_found }}</small>
+        </div>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">{{ item.title }}</h5>
+        <p class="card-text">{{ item.description|truncatechars:100 }}</p>
+        <div class="mb-2">
+          <small class="text-muted">
+            <i class="fas fa-map-marker-alt"></i> {{ item.location }}
+          </small>
+        </div>
+        <!-- contact_info hidden -->
+      </div>
+      <div class="card-footer bg-transparent">
+        <div class="d-flex gap-2">
+          <a href="{% url 'items:detail' item.id %}" class="btn btn-outline-success">
+            <i class="fas fa-eye"></i> View
+          </a>
+          {% if request.user != item.owner %}
+          <a href="{% url 'items:claim_item' item.id %}" class="btn btn-outline-warning">
+            <i class="fas fa-hand-paper"></i> Claim
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5">
+    <h5 class="text-muted">No found items.</h5>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

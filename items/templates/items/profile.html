@@ -1,0 +1,203 @@
+{% extends "items/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-user-circle text-primary"></i> User Profile</h2>
+    <a href="{% url 'items:logout' %}" class="btn btn-danger btn-sm shadow">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+</div>
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong>Username:</strong></p>
+                <div class="bg-light rounded px-2 py-1">{{ user.username }}</div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong>Email:</strong></p>
+                <div class="bg-light rounded px-2 py-1">{{ user.email }}</div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong>Full Name:</strong></p>
+                <div class="bg-light rounded px-2 py-1">{{ user.full_name }}</div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong>Phone Number:</strong></p>
+                <div class="bg-light rounded px-2 py-1">{{ user.phone }}</div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong>College/Institution:</strong></p>
+                <div class="bg-light rounded px-2 py-1">{{ user.college }}</div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <p class="mb-1"><strong>Member Since:</strong></p>
+                <div class="bg-light rounded px-2 py-1">{{ user.date_joined|date:"M d, Y" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-danger shadow-sm mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title text-danger"><i class="fas fa-exclamation-triangle"></i> Lost Items</h5>
+                <span class="badge bg-danger fs-5 px-3 py-2">{{ lost_items|length }}</span>
+                <p class="mb-0 text-muted">Total lost items reported</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success shadow-sm mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title text-success"><i class="fas fa-check-circle"></i> Found Items</h5>
+                <span class="badge bg-success fs-5 px-3 py-2">{{ found_items|length }}</span>
+                <p class="mb-0 text-muted">Total found items reported</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info shadow-sm mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title text-info"><i class="fas fa-check-double"></i> Resolved Items</h5>
+                <span class="badge bg-info fs-5 px-3 py-2">{{ resolved_count }}</span>
+                <p class="mb-0 text-muted">Items successfully found</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning shadow-sm mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title text-warning"><i class="fas fa-hand-paper"></i> Claims Made</h5>
+                <span class="badge bg-warning fs-5 px-3 py-2">{{ user_claims|length }}</span>
+                <p class="mb-0 text-muted">Items you've claimed</p>
+            </div>
+        </div>
+</div>
+</div>
+
+<!-- Resolved items (clarity under counts) -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-flag-checkered"></i> Recently Resolved Items</h5>
+        <span class="badge bg-info">{{ resolved_count }}</span>
+      </div>
+      <div class="card-body">
+        {% if resolved_items %}
+          <ul class="list-group list-group-flush">
+            {% for it in resolved_items|slice:':5' %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>
+                <strong>{{ it.title }}</strong>
+                <small class="text-muted d-block">{{ it.category }} • {{ it.location }} • {{ it.date_lost_found }}</small>
+              </span>
+              <a href="{% url 'items:detail' it.id %}" class="btn btn-sm btn-outline-primary">View</a>
+            </li>
+            {% endfor %}
+          </ul>
+          {% if resolved_items|length > 5 %}
+          <div class="mt-2 small text-muted">Showing latest 5 resolved items.</div>
+          {% endif %}
+        {% else %}
+          <div class="text-muted">No resolved items yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <h4 class="mb-3"><i class="fas fa-list"></i> Your Items</h4>
+        {% with user_items=lost_items|add:found_items %}
+            {% if user_items %}
+            <ul class="list-group">
+                {% for item in user_items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center {% if item.is_found %}bg-light text-muted{% endif %}">
+                    <span>
+                        <span class="badge {% if item.item_type == 'Lost' %}bg-danger{% else %}bg-success{% endif %} me-2">{{ item.item_type }}</span>
+                        {% if item.is_found %}
+                            <span class="badge bg-info me-2"><i class="fas fa-check"></i> Found</span>
+                        {% endif %}
+                        {% if item.is_hidden_from_dashboard %}
+                            <span class="badge bg-secondary me-2"><i class="fas fa-eye-slash"></i> Hidden</span>
+                        {% endif %}
+                        <strong>{{ item.title }}</strong>
+                        <span class="text-muted">- {{ item.description|truncatechars:60 }}</span>
+                    </span>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="{% url 'items:detail' item.id %}"
+                           class="btn {% if item.item_type == 'Lost' %}btn-outline-danger{% else %}btn-outline-success{% endif %}">View</a>
+                        <a href="{% url 'items:edit_item' item.id %}" class="btn btn-outline-primary">
+                           <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'items:delete_item' item.id %}" class="btn btn-outline-danger" onclick="return confirm('Delete this item?');">
+                           <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">No items yet.</p>
+            {% endif %}
+{% endwith %}
+    </div>
+</div>
+
+
+
+<!-- User Claims Section -->
+{% if user_claims %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h4 class="mb-3"><i class="fas fa-hand-paper"></i> Your Claims</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Status</th>
+                        <th>Date Claimed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for claim in user_claims %}
+                    <tr>
+                        <td>
+                            <strong>{{ claim.item.title }}</strong><br>
+                            <small class="text-muted">{{ claim.item.category }} - {{ claim.item.location }}</small>
+                        </td>
+                        <td>
+                            {% if claim.status == 'pending' %}
+                                <span class="badge bg-warning">Pending Review</span>
+                            {% elif claim.status == 'verified' %}
+                                <span class="badge bg-success">Verified</span>
+                            {% elif claim.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% elif claim.status == 'completed' %}
+                                <span class="badge bg-info">Completed</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ claim.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'items:detail' claim.item.id %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View Item
+                                </a>
+                                <a href="{% url 'items:start_claim_chat' claim.id %}" class="btn btn-outline-success">
+                                    <i class="fas fa-comments"></i> Chat
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

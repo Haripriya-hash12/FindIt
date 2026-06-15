@@ -1,0 +1,12 @@
+{% extends "items/base.html" %}
+{% block content %}
+<div class="text-center py-5">
+  <h2>Welcome to FindIt</h2>
+  <p class="lead">College Lost & Found Platform</p>
+  <div class="mt-4">
+    <a href="{% url 'items:welcome' %}" class="btn btn-primary btn-lg">
+      <i class="fas fa-home"></i> Go to Welcome Page
+    </a>
+  </div>
+</div>
+{% endblock %}

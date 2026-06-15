@@ -1,0 +1,45 @@
+{% extends "items/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2><i class="fas fa-exclamation-triangle text-danger"></i> Lost Items</h2>
+  <a href="{% url 'items:post' %}" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Report Lost Item
+  </a>
+</div>
+
+<div class="row">
+  {% for item in items %}
+  <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100 border-danger card-hover">
+      <div class="ratio ratio-16x9 overflow-hidden">
+        <img src="{{ item.image|default:'/static/items/placeholder.png' }}" class="object-fit-cover" alt="{{ item.title }}">
+      </div>
+      <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+        <span class="badge bg-light text-dark">{{ item.category }}</span>
+        <small>{{ item.date_lost_found }}</small>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">{{ item.title }}</h5>
+        <p class="card-text">{{ item.description|truncatechars:100 }}</p>
+        <small class="text-muted d-block mb-1">
+          <i class="fas fa-map-marker-alt"></i> {{ item.location }}
+        </small>
+        <!-- contact_info hidden -->
+      </div>
+      <div class="card-footer bg-transparent d-flex gap-2">
+        <a href="{% url 'items:detail' item.id %}" class="btn btn-outline-danger">
+          <i class="fas fa-eye"></i> View
+        </a>
+        <a href="{% url 'items:start_chat' item.id %}" class="btn btn-outline-primary">
+          <i class="fas fa-comments"></i> Chat
+        </a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5">
+    <h5 class="text-muted">No lost items.</h5>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
